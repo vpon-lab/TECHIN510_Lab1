@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+.env
+.streamlit/secrets.toml
+gix_purchasing_data.json
+gix_purchasing_data.json.tmp

@@ -30,3 +30,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## 4. Run this code in terminal to run the app
+```
+git remote set-url origin https://github.com/vpon-lab/TECHIN510_Lab1.git
+(.venv) 
+```
+

@@ -403,10 +403,14 @@ def render_student(*, tabbed_in_staff: bool = False) -> None:
 
                 st.markdown("#### Order lines")
                 edf = pd.DataFrame([i.to_dict() for i in order.items])
+                edf.insert(0, "student_name", order.student_name)
+                edf.insert(1, "student_email", order.student_email)
                 # data_editor returns the current table; Save/Cancel use this same-run `edited` dataframe.
                 edited = st.data_editor(
                     edf,
                     column_config={
+                        "student_name": st.column_config.TextColumn("Student name", disabled=True),
+                        "student_email": st.column_config.TextColumn("Student email", disabled=True),
                         "item_id": st.column_config.TextColumn("Item ID", disabled=True),
                         "instructor_approval": st.column_config.TextColumn(
                             "Instructor (staff only)", disabled=True
@@ -428,7 +432,10 @@ def render_student(*, tabbed_in_staff: bool = False) -> None:
                             st.warning("This order is cancelled. Contact the coordinator to reopen.")
                         else:
                             new_items: list[LineItem] = []
-                            for _, r in edited.iterrows():
+                            item_df = edited.drop(
+                                columns=["student_name", "student_email"], errors="ignore"
+                            )
+                            for _, r in item_df.iterrows():
                                 iid = str(r.get("item_id") or "").strip()
                                 if not iid:
                                     iid = str(uuid.uuid4())
@@ -500,9 +507,13 @@ def render_instructor() -> None:
     for order in active:
         with st.expander(f"{order.student_name} — {order.order_id[:8]}… ({order.student_email})", expanded=False):
             df = pd.DataFrame([i.to_dict() for i in order.items])
+            df.insert(0, "student_name", order.student_name)
+            df.insert(1, "student_email", order.student_email)
             edited = st.data_editor(
                 df,
                 column_config={
+                    "student_name": st.column_config.TextColumn("Student name", disabled=True),
+                    "student_email": st.column_config.TextColumn("Student email", disabled=True),
                     "item_id": st.column_config.TextColumn("Item ID", disabled=True),
                     "instructor_approval": st.column_config.SelectboxColumn(
                         "Approval",
@@ -517,7 +528,10 @@ def render_instructor() -> None:
             )
             if st.button("Save instructor decision", key=f"isave_{order.order_id}"):
                 new_items: list[LineItem] = []
-                for _, r in edited.iterrows():
+                item_df = edited.drop(
+                    columns=["student_name", "student_email"], errors="ignore"
+                )
+                for _, r in item_df.iterrows():
                     # Preserve coordinator fields from the previous LineItem when rebuilding from the grid.
                     orig = next((x for x in order.items if x.item_id == str(r["item_id"])), None)
                     new_items.append(
@@ -570,9 +584,13 @@ def render_coordinator() -> None:
     for order in active:
         with st.expander(f"{order.student_name} — {order.order_id[:8]}…", expanded=False):
             df = pd.DataFrame([i.to_dict() for i in order.items])
+            df.insert(0, "student_name", order.student_name)
+            df.insert(1, "student_email", order.student_email)
             edited = st.data_editor(
                 df,
                 column_config={
+                    "student_name": st.column_config.TextColumn("Student name", disabled=True),
+                    "student_email": st.column_config.TextColumn("Student email", disabled=True),
                     "item_id": st.column_config.TextColumn("Item ID", disabled=True),
                     "name": st.column_config.TextColumn("Item", disabled=True),
                     "quantity": st.column_config.NumberColumn("Qty", disabled=True),
@@ -589,7 +607,10 @@ def render_coordinator() -> None:
             )
             if st.button("Save coordinator updates", key=f"csave_{order.order_id}"):
                 new_items: list[LineItem] = []
-                for _, r in edited.iterrows():
+                item_df = edited.drop(
+                    columns=["student_name", "student_email"], errors="ignore"
+                )
+                for _, r in item_df.iterrows():
                     new_items.append(
                         LineItem(
                             item_id=str(r["item_id"]),

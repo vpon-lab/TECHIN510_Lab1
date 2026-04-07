@@ -34,5 +34,7 @@ pip install -r requirements.txt
 ```
 git remote set-url origin https://github.com/vpon-lab/TECHIN510_Lab1.git
 (.venv) 
+
+streamlit run gix_student_purchasing.py
 ```
 
